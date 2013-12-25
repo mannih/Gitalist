@@ -9,7 +9,6 @@ extends 'Catalyst';
 
 use Catalyst qw/
                 ConfigLoader
-                Unicode::Encoding
                 Static::Simple
                 StackTrace
                 SubRequest
@@ -19,40 +18,42 @@ our $VERSION = '0.004003';
 $VERSION = eval $VERSION;
 
 __PACKAGE__->config(
-    name => 'Gitalist',
-    default_view => 'Default',
-    default_model => 'CollectionOfRepos',
-    use_request_uri_for_path => 1,
+    name                                        => 'Gitalist',
+    default_view                                => 'Default',
+    default_model                               => 'CollectionOfRepos',
+    use_request_uri_for_path                    => 1,
     disable_component_resolution_regex_fallback => 1,
 );
 
 __PACKAGE__->setup();
 
 after prepare_path => sub {
-    my ($ctx) = @_;
+    my ( $ctx ) = @_;
+
     my $path = $ctx->req->uri->path;
-    if ($ctx->req->param('a')) {
-        $ctx->req->uri->path("/legacy$path");
+    if ( $ctx->req->param( 'a' ) ) {
+        $ctx->req->uri->path( "/legacy$path" );
     }
 
-    if($path =~ s/[.]json$// && $ctx->req->content_type eq 'application/json') {
-        $ctx->req->uri->path($path);
+    if ( $path =~ s/[.]json$// && $ctx->req->content_type eq 'application/json' ) {
+        $ctx->req->uri->path( $path );
     }
 };
 
 around uri_for => sub {
-  my ($orig, $c) = (shift, shift);
-  my $uri = $c->$orig(@_);
-  $$uri =~ tr[&][;] if defined $uri;
-  return $uri;
+    my ( $orig, $c ) = ( shift, shift );
+
+    my $uri = $c->$orig( @_ );
+    $$uri =~ tr[&][;] if defined $uri;
+    return $uri;
 };
 
 sub uri_with {
-  my ($self, @args) = @_;
-  my $uri = $self->request->uri_with(@args);
-  # Wow this awful.
-  $uri =~ s[/fragment\b][];
-  return $uri;
+    my ( $self, @args ) = @_;
+
+    my $uri = $self->request->uri_with( @args );
+    $uri =~ s[/fragment\b][];
+    return $uri;
 }
 
 after setup_finalize => sub {
