@@ -1,4 +1,5 @@
 use MooseX::Declare;
+use Class::Load;
 
 class Gitalist::Git::CollectionOfRepositories::Vhost
      with Gitalist::Git::CollectionOfRepositoriesWithRequestState {
@@ -11,7 +12,7 @@ class Gitalist::Git::CollectionOfRepositories::Vhost
         foreach my $name (keys %collections) {
             my %args = %{$collections{$name}};
             my $class = delete $args{class};
-            Class::MOP::load_class($class);
+            Class::Load::load_class($class);
             $collections{$name} = $class->new(%args);
         }
         my $ret = { %$args, collections => \%collections };
@@ -115,7 +116,7 @@ Gitalist::Git::CollectionOfRepositories::Vhost
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>, L<Gitalist::Git::Repository>
+L<Gitalist::Git::CollectionOfRepositories>, L<Git::Gitalist::Repository>
 
 =head1 AUTHORS
 
